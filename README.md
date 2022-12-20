@@ -1,1 +1,1 @@
-# ds_ga_1008
+# Yann  LeCun's Deep Learning Assignments
