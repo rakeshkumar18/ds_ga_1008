@@ -1,0 +1,132 @@
+%-------------------------
+% Resume in Latex
+% Author : Rakesh Kumar
+% License : MIT
+%------------------------
+
+
+\documentclass[letterpaper,11pt]{article}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathtools}
+
+\title{Homework1 Backprop}
+\author{Rakesh Kumar}
+\begin{document}
+
+\maketitle
+\hrulefill
+\section{Theory}
+\subsection{Two-Layer Neural Nets}
+
+
+   $ Linear_1 \rightarrow \mathrm{f} \rightarrow Linear_2 \rightarrow \mathrm{g}$ 
+   where $Linear_i(x) = \mathbf{W^{(i)}} \mathbf{x} + \mathbf{b^{(i)}}$ is the i-th tranformation, and
+   $f, g$ are elementwise nonlinear activation functions. 
+   where input $\mathbf{x} \, \, \epsilon \,\, \mathbb{R}^{n} $ and 
+   $\hat{y} \,\, \epsilon \,\, \mathbb{R}^{n}$.
+
+   \subsection{Regression Task}
+   $f(.) = (.)^{+} = ReLU(.)$ and $ g $ is to be identity function. \\
+   MSE loss function $l_{MSE}(y, \hat{y}) = ||\hat{y} - y||^{2}$ where $y$ is the target output.
+
+   \begin{enumerate}
+
+    \item Name and mathematically define the 5 programming steps to train the above 
+    model architecture with PyTorch using SGD on a single batch of data.
+    \\
+    Solution:\\
+    step 1. Feed Forward to get the logits.
+    \begin{equation}
+        y_{pred} = model(X)
+    \end{equation}
+
+    \begin{math}
+        \mathbf{x} \, \epsilon \, \mathbb{R}^{n} \rightarrow \mathbf{h}
+        \epsilon \, \mathbb{R}^{d} \rightarrow \hat{\textbf{y}} \,\epsilon \, \mathbb{R}^{k}
+    \end{math}\\
+    Where:
+    \begin{align}
+         \mathbf{h} &= f(\mathbf{W_h}\mathbf{x} + \mathbf{b_h})\\
+         \hat{\textbf{y}} &= g(\mathbf{W_y}\mathbf{h} + \mathbf{b_y})
+    \end{align}
+    $ \mathbf{W_h} \, \epsilon \, \mathbb{R}^{dxn} \,\,, \mathbf{b_h} \, \epsilon \, \mathbb{R}^{d} \,\,,
+    \mathbf{W_y} \, \epsilon \, \mathbb{R}^{Kxd} \,\,, \mathbf{b_y} \, \epsilon \, \mathbb{R}^{K}$
+
+    step 2. Compute the loss using different criterion.
+
+    \begin{equation}
+        loss = criterion(y_{pred}, y)
+    \end{equation}
+
+    Example of loss function: $l_{MSE}(y, \hat{y}) =\frac{1}{n} \sum {||y_{pred} - y||^{2}}$
+
+    \textbf{Cross entropy or neagtive likelihood}:
+
+    \begin{equation}
+    \mathrm{L}(\hat{Y}, c) = \frac{1}{m} \sum^{m}_{i = 1}(l(\hat{y^(i)}, c_i))
+    \end{equation}
+    Where: $l(\hat{y^(i)}, c_i) = -log(\hat{y}[c])$
+
+    step 3. Zeroing the gradients before going through the backward pass.
+    $optimizer.zero\_ grad()$
+
+    step 4. Fourth step after zeroing the gradients, is Bakward pass to compute the gradient of loss w.r.t our
+    learnable parameters.
+    \begin{align}
+        \Theta &= \left(\mathbf{W_h}\, , \mathbf{b_h} \,, \mathbf{W_y} \,, \mathbf{b_y}\right)\\
+        \mathrm{J}(\Theta) &= \mathrm{L}(\hat{Y}(\Theta), c) \,\epsilon \, \mathbb{R}^{+} \\
+        \frac{\partial \mathrm{J}(\Theta)}{\partial \mathbf{W_y}} &= \frac{\partial \mathrm{J}(\Theta)}
+        {\partial \hat{\mathbf{y}}}\frac{\partial \hat{\mathbf{y}}}{\partial \mathbf{W_y}} \\
+        \frac{\partial \mathrm{J}(\Theta)}{\partial \mathbf{W_h}} &= \frac{\partial \mathrm{J}(\Theta)}
+        {\partial \hat{\mathbf{y}}}
+        \frac{\partial \hat{\mathbf{y}}}{\partial {\mathbf{h}}}\frac{\partial {\mathbf{h}}}{\mathbf{W_h}}
+    \end{align}
+
+    step 5. Updating the parameters.\\
+    Based on the SGD optimization using backprop we update the learnable parameters.
+
+    \item Write doen the forward pass of each layer:
+    \begin{center}
+        \begin{tabular}{ |c|c|c| } 
+         \hline
+         Layer & Input & Output \\ 
+         \hline
+         $Linear_1$ & $\mathbf{x}, \mathbf{W^1} , \mathbf{b^1}$ & $ \textbf{z}_{1}= \mathbf{W^1}\mathbf{x} + \mathbf{b^1}$ \\ 
+         \hline
+         $\mathrm{f}$ & $\mathbf{W^1}\mathbf{x} + \mathbf{b^1}$ & $\textbf{z}_{2} = f(\mathbf{W^1}\mathbf{x} + \mathbf{b^1})$ \\ 
+         \hline
+         $Linear_2$ & $\textbf{z}_{2} , \mathbf{W^2} , \mathbf{b^2}$ & $\textbf{z}_{3}  = \mathbf{W^2}\textbf{z}_{2}  + \mathbf{b^2}$ \\ 
+         \hline
+         $\mathrm{g}$ & $\mathbf{W^2}\mathbf{h} + \mathbf{b_y}$ & $\hat{\textbf{Y}} = g(\mathbf{W^2}\mathbf{h} + \mathbf{b^2})$ \\ 
+         \hline
+         Loss & $\hat{\textbf{Y}} , \textbf{c}$ & $\mathrm{L}(\hat{Y}(\Theta), c)$ \\ 
+         \hline
+        \end{tabular}
+        \end{center}
+
+        \item Gradient calulated from the backward pass:
+        
+        \begin{center}
+            \begin{tabular}{|c|c|}
+                \hline
+                Parameters & Gradient \\
+                \hline
+                $\textbf{W}^{1}$ &  \\
+                \hline
+                $\textbf{b}^{1}$ & \\
+                \hline
+                $\textbf{W}^{2}$ &  \\
+                \hline
+                $\textbf{b}^{2}$ & \\
+                \hline
+            \end{tabular}
+        \end{center}
+   \end{enumerate}
+
+
+
+\end{document}
